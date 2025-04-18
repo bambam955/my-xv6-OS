@@ -31,3 +31,5 @@ SYSCALL(sleep)
 SYSCALL(uptime)
 
 SYSCALL(shutdown)
+SYSCALL(ps)
+SYSCALL(nice)

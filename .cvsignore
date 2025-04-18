@@ -5,7 +5,7 @@ _*
 kernel
 user1
 userfs
-usertests
+testuser
 xv6.img
 vectors.S
 bochsout.txt

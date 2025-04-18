@@ -13,6 +13,7 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
+struct pinfo;
 
 // bio.c
 void binit(void);
@@ -28,6 +29,11 @@ void panic(char *) __attribute__((noreturn));
 
 // dhello.c
 void helloinit(void);
+
+// dzero.c
+void dzeroinit(void);
+void dnullinit(void);
+void dticksinit(void);
 
 // exec.c
 int exec(char *, char **);
@@ -195,6 +201,19 @@ void clearpteu(pde_t *pgdir, char *uva);
 
 // kshutdown.c
 void            shutdown(void);
+
+/// Kernel portion of ps system call to return information about 
+/// existing processes to a user program
+///
+/// \param[in] pinfosToReturnNumber : The maximum number of structures
+/// to copy into user buffer, pinfo_p.
+/// \param[in] pinf_p : Pointer to a user buffer at least lareg enough
+/// to store pinfosToReturnNumber pinfo structures.
+///
+/// \return The number of pinfo structures actually copied into pinfo_p
+int cps(int pinfosToReturnNumber, struct pinfo *pinfo_p);
+
+int cnice(int pid, int priority);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x) / sizeof((x)[0]))
