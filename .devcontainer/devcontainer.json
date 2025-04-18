@@ -18,5 +18,9 @@
   "remoteEnv": {
     "GIT_TERMINAL_PROMPT": "1"
   },
+  "runArgs": [
+    "--name",
+    "xv6-dev-container"
+  ],
   "postCreateCommand": "make clean"
 }

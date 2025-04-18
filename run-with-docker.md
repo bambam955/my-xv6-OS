@@ -19,24 +19,25 @@ Here are the steps for Windows users. I don't have a Mac to test with but I thin
 
 4. If you don't get any errors, then your installation of docker was successful.
 
-## Set Up Dev Containers
+## Set Up VS Code Dev Containers
 
 1. If you don't already have VS Code, install it here: https://code.visualstudio.com/download
 2. Install the "Dev Containers" extension from Microsoft: https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers. You can search "Dev Containers" in the extensions library in VS Code and it will come up.
 
-## Run XV6
+## Run XV6 in a Container
 
 1. Open this repository in VS Code.
 2. Open the command prompt and run `Dev Containers: Reopen in Container`.
 3. If it succeeds, then you will now be editing the repo files in a new Docker container!
-4. Now, open a Command Prompt again and run `docker ps` to get the name of the container.
+4. Now, open a Command Prompt again.
 5. Run the following command to get inside the container:
 
     ```bash
-    docker exec -it <container-name> bash
+    docker exec -it xv6-dev-container bash
     ```
 
 6. Now you will be located in the root of the repository. You can run `make && make qemu-nox` to run XV6.
+7. Run `Remote: Close Remote Connection` in VS Code to stop the container.
 
 ## Push and Pull Git Changes
 
