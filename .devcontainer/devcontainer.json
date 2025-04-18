@@ -12,9 +12,8 @@
       }
     }
   },
-  "mounts": [
-    "source=${localWorkspaceFolder},target=/xv6,type=bind"
-  ],
+  "workspaceMount": "source=${localWorkspaceFolder},target=/xv6,type=bind,consistency=cached",
+  "workspaceFolder": "/xv6",
   "remoteEnv": {
     "GIT_TERMINAL_PROMPT": "1"
   },
