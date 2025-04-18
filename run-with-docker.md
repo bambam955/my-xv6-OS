@@ -27,4 +27,13 @@ Here are the steps for Windows users. I don't have a Mac to test with but I thin
 ## Run XV6
 
 1. Open this repository in VS Code.
-2. Open the command prompt and
+2. Open the command prompt and run `Dev Containers: Reopen in Container`.
+3. If it succeeds, then you will now be editing the repo files in a new Docker container!
+4. Now, open a Command Prompt again and run `docker ps` to get the name of the container.
+5. Run the following command to get inside the container:
+
+    ```bash
+    docker exec -it <container-name> bash
+    ```
+
+6. Now you will be located in the root of the repository. You can run `make && make qemu-nox` to run XV6.

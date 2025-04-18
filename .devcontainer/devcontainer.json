@@ -1,18 +1,22 @@
 {
-    "name": "XV6 Dev",
-    "image": "bennettmoore82/xv6-dev:latest",
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "ms-vscode.cpptools",
-                "ms-vscode.remote-containers"
-            ],
-            "settings": {
-                "terminal.integrated.shell.linux": "/bin/bash"
-            }
-        }
-    },
-    "mounts": [
-        "source=${localWorkspaceFolder},target=/xv6,type=bind"
-    ]
+  "name": "XV6 Dev",
+  "image": "bennettmoore82/xv6-dev:latest",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.remote-containers"
+      ],
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      }
+    }
+  },
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/xv6,type=bind"
+  ],
+  "remoteEnv": {
+    "GIT_TERMINAL_PROMPT": "1"
+  },
+  "postCreateCommand": "make clean"
 }
