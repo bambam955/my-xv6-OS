@@ -37,3 +37,11 @@ Here are the steps for Windows users. I don't have a Mac to test with but I thin
     ```
 
 6. Now you will be located in the root of the repository. You can run `make && make qemu-nox` to run XV6.
+
+## Push and Pull Git Changes
+
+You can open your local copy of the repo in Git BASH to make commits, pull changes, and everything else.
+
+All changes that you make inside the container will be automatically synced to your local copy of the repo and vice versa, so you can change files in VS Code, run the new code inside the container, and commit the changes using your local Git config and login.
+
+You can do some Git operations directly in the container, such as `git status` and `git pull`; the only thing you can't do is `git push`, because your Git credentials aren't set up automatically in the container.
