@@ -1,17 +1,18 @@
 {
     "name": "XV6 Dev",
-    "build": {
-      "dockerfile": "Dockerfile"
+    "image": "bennettmoore82/xv6-dev",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.remote-containers"
+            ],
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/bash"
+            }
+        }
     },
-    "settings": {
-      "terminal.integrated.shell.linux": "/bin/bash"
-    },
-    "extensions": [
-      "ms-vscode.cpptools",
-      "ms-vscode.remote-containers"
-    ],
     "mounts": [
-      "source=${localWorkspaceFolder},target=/xv6,type=bind"
+        "source=${localWorkspaceFolder},target=/xv6,type=bind"
     ]
-  }
-  
+}
