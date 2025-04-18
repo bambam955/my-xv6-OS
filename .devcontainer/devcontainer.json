@@ -1,6 +1,6 @@
 {
     "name": "XV6 Dev",
-    "image": "bennettmoore82/xv6-dev",
+    "image": "bennettmoore82/xv6-dev:latest",
     "customizations": {
         "vscode": {
             "extensions": [
