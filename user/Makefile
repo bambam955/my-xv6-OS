@@ -72,6 +72,7 @@ UPROGS=\
 	_test_starvation\
 	_test_round_robin\
 	_testequalpriority\
+	_testinversion\
 
 all: $(UPROGS)
 

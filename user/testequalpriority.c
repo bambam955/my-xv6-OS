@@ -23,9 +23,7 @@ main(int argc, char *argv[])
     // Both parent and child run this code
     for(int i = 0; i < 10; i++) {
         printf(2, "%d running\n", getpid());
-        for(int j = 0; j < (1<<20); j++) {
-
-        }
+        sleep(50);
     }
 
     printf(2, "%d done!\n", getpid());

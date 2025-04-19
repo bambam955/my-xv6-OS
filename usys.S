@@ -31,5 +31,7 @@ SYSCALL(sleep)
 SYSCALL(uptime)
 
 SYSCALL(shutdown)
+SYSCALL(flock)
+SYSCALL(funlock)
 SYSCALL(ps)
 SYSCALL(nice)

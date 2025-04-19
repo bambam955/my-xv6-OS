@@ -202,6 +202,16 @@ void clearpteu(pde_t *pgdir, char *uva);
 // kshutdown.c
 void            shutdown(void);
 
+/// @brief This fuction acquires a sleep lock for the given file.
+/// @param fp a valid file pointer
+/// @return 0 upon success and -1 upon error
+int             filelock(struct file* fp);
+
+/// @brief This fuction releases a sleep lock for the given file.
+/// @param fp a valid file pointer
+/// @return 0 upon success and -1 upon error
+int             fileunlock(struct file* fp);
+
 /// Kernel portion of ps system call to return information about 
 /// existing processes to a user program
 ///
