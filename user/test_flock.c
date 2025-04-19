@@ -32,7 +32,6 @@ int main(int argc, char *argv[])
   printf(1, "%d: unlocking file\n", getpid());
   funlock(fd);
 
-
   wait();
   exit();
 }

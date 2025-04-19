@@ -49,7 +49,6 @@ struct proc {
   enum procstate state;       // Process state
   int pid;                    // Process ID
   int priority;               // Process priority (high numbers are higher priority)
-  uint32_t heap_insert_time;   // When the process was last inserted into the heap structure of runnable processes
   struct proc *parent;        // Parent process
   struct trapframe *tf;       // Trap frame for current syscall
   struct context *context;    // swtch() here to run process

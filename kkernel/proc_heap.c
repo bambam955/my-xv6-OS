@@ -7,6 +7,7 @@ void heap_init(struct heap *h) {
   h->size = 0;
 }
 
+// Swap two heap entries. Necessary for percolation.
 static void swap(struct heap_entry *a, struct heap_entry *b) {
   struct heap_entry tmp = *a;
   *a = *b;
@@ -21,20 +22,23 @@ static int compare(struct heap_entry *a, struct heap_entry *b) {
   return a->timestamp < b->timestamp;
 }
 
-void heap_insert(struct heap *h, struct proc *p, int priority, uint32_t timestamp) {
+void heap_insert(struct heap *h, struct proc *p, uint32_t timestamp) {
+  // Protect heap modifications with this lock.
   acquire(&h->lock);
   
+  // Don't add more processes if we have reached the limit.
   if (h->size >= NPROC) {
     release(&h->lock);
     return;
   }
 
+  // Put the new entry at the very end of the array.
   int i = h->size++;
   h->entries[i].p = p;
-  h->entries[i].priority = priority;
+  h->entries[i].priority = p->priority;
   h->entries[i].timestamp = timestamp;
 
-  // Bubble up
+  // Percolate up to the proper spot in the heap.
   while (i > 0) {
     int parent = (i - 1) / 2;
     if (compare(&h->entries[i], &h->entries[parent])) {
@@ -47,18 +51,23 @@ void heap_insert(struct heap *h, struct proc *p, int priority, uint32_t timestam
 }
 
 struct proc* heap_pop(struct heap *h) {
+  // Protect heap modifications with this lock.
   acquire(&h->lock);
 
+  // If we have no runnable processes, return nothing.
+  // This will tell the scheduler to run the idle process, waiting for I/O.
   if (h->size == 0)
   {
     release(&h->lock);
     return 0;
   }
 
+  // Pop the highest priority entry off of the heap.
   struct proc *top = h->entries[0].p;
+  // Set the root entry to be the very lowest-priority entry...
   h->entries[0] = h->entries[--h->size];
 
-  // Bubble down
+  // ...Then percolate that entry down to where it should be.
   int i = 0;
   while (1) {
     int left = 2 * i + 1;

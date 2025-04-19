@@ -149,8 +149,7 @@ void userinit(void) {
   acquire(&ptable.lock);
 
   p->state = RUNNABLE;
-  p->heap_insert_time = ticks;
-  heap_insert(&run_heap, p, p->priority, p->heap_insert_time);
+  heap_insert(&run_heap, p, ticks);
 
   release(&ptable.lock);
 }
@@ -217,8 +216,7 @@ int fork(void) {
   acquire(&ptable.lock);
 
   np->state = RUNNABLE;
-  np->heap_insert_time = ticks;
-  heap_insert(&run_heap, np, np->priority, np->heap_insert_time);
+  heap_insert(&run_heap, np, ticks);
 
   release(&ptable.lock);
 
@@ -386,8 +384,7 @@ void yield(void) {
 
   struct proc* p = myproc();
   p->state = RUNNABLE;
-  p->heap_insert_time = ticks;
-  heap_insert(&run_heap, p, p->priority, p->heap_insert_time);
+  heap_insert(&run_heap, p, ticks);
 
   sched();
   release(&ptable.lock);
@@ -459,8 +456,7 @@ static void wakeup1(void *chan) {
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
     if (p->state == SLEEPING && p->chan == chan) {
       p->state = RUNNABLE;
-      p->heap_insert_time = ticks;
-      heap_insert(&run_heap, p, p->priority, p->heap_insert_time);
+      heap_insert(&run_heap, p, ticks);
     }
   }
 }
@@ -485,8 +481,7 @@ int kill(int pid) {
       // Wake process from sleep if necessary.
       if (p->state == SLEEPING) {
         p->state = RUNNABLE;
-        p->heap_insert_time = ticks;
-        heap_insert(&run_heap, p, p->priority, p->heap_insert_time);
+        heap_insert(&run_heap, p, ticks);
       }
       release(&ptable.lock);
       return 0;
