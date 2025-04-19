@@ -61,6 +61,7 @@ UPROGS=\
 	_countUD\
 	_cp\
 	_echo\
+	_forever\
 	_grep\
 	_init\
 	_kill\
@@ -73,8 +74,8 @@ UPROGS=\
 	_sh\
 	_shutdown\
 	_test_equalpriority\
+	_test_flock\
 	_test_inversion\
-	_test_long\
 	_test_roundrobin\
 	_test_starvation\
 

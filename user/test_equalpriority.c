@@ -3,31 +3,41 @@
 #include "user.h"
 #include "fcntl.h"
 
-static const int highPriority = 10;
+#define HIGH_PRIORITY 10
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-    printf(2, "Test passes if parent and child prints are interleaved\n");
-    nice(getpid(), highPriority); // Make self high priority
-    printf(2, "%d started with priority: %d\n", getpid(), highPriority);
+  // Explain the test
+  printf(1, "%s test program\n", argv[0]);
+  printf(1, "Pass: parent and child outputs are interleaved\n");
+  printf(1, "Fail: parent and child outputs are completely separated\n\n");
 
-    int childPid = fork();
-    if(0 != childPid) {
-        // In high priority parent
-        // Make child equally high priority
-        nice(childPid, 10);
-        printf(2, "Child %d started with priority: %d\n", childPid, highPriority);
-    }
 
-    // Both parent and child run this code
-    for(int i = 0; i < 10; i++) {
-        printf(2, "%d running\n", getpid());
-        sleep(50);
-    }
+  // Make self (parent) process highest priority
+  nice(getpid(), HIGH_PRIORITY);
+  printf(1, "%d: process set to priority %d\n", getpid(), HIGH_PRIORITY);
 
-    printf(2, "%d done!\n", getpid());
+  int childPid = fork();
+  if (0 != childPid)
+  {
+    // In high-priority parent:
 
-    wait(); 
-    exit();
+    // Make the child process equally high-priority
+    nice(childPid, HIGH_PRIORITY);
+    printf(1, "%d: child process set to priority %d\n", childPid, HIGH_PRIORITY);
+  }
+
+  // Both parent and child run this code.
+  // The outputs should be interleaved because of round-robin scheduling.
+  for (int i = 0; i < 10; ++i)
+  {
+    printf(1, "%d: running...\n", getpid());
+    // Wait for a little bit
+    sleep(50);
+  }
+
+  printf(1, "%d: done!\n", getpid());
+
+  wait();
+  exit();
 }
