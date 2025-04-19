@@ -15,9 +15,6 @@ main(void)
         sleep(100);
       }
     }
-    else{
-      wait();
-    }
   }
 
   wait(); // parent waits forever

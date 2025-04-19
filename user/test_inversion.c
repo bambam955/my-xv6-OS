@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     printf(2, "%d low priority got lock!\n", getpid());
     for (int i = 0; i < 10; i++)
     {
-      printf(2, "%d low priority running\n", getpid());
+      printf(2, "%d low priority running...\n", getpid());
       for (int j = 0; j < (1 << 20); j++)
       {
         // sleep(1);

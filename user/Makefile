@@ -58,21 +58,25 @@ ULIB = ../ulib.o ../usys.o ../printf.o ../malloc.o
 # We can only have so many programs at a time. If the shell doesn't load, remove some test programs.
 UPROGS=\
 	_cat\
+	_countUD\
 	_cp\
 	_echo\
+	_grep\
 	_init\
+	_kill\
+	_ln\
 	_ls\
 	_mkdir\
+	_nice\
+	_ps\
 	_rm\
 	_sh\
 	_shutdown\
-	_nice\
-	_ps\
-	_long\
+	_test_equalpriority\
+	_test_inversion\
+	_test_long\
+	_test_roundrobin\
 	_test_starvation\
-	_test_round_robin\
-	_testequalpriority\
-	_testinversion\
 
 all: $(UPROGS)
 
