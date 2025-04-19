@@ -6,6 +6,8 @@
 #include "spinlock.h"
 #include "types.h"
 #include "x86.h"
+#include "pinfo.h"
+#include "proc_heap.h"
 
 struct {
   struct spinlock lock;
@@ -14,13 +16,19 @@ struct {
 
 static struct proc *initproc;
 
+struct heap run_heap;
+
 int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
 
 static void wakeup1(void *chan);
 
-void pinit(void) { initlock(&ptable.lock, "ptable"); }
+void pinit(void) { 
+  initlock(&ptable.lock, "ptable");
+  heap_init(&run_heap);
+  initlock(&run_heap.lock, "run_heap");
+}
 
 // Must be called with interrupts disabled
 int cpuid() { return mycpu() - cpus; }
@@ -80,6 +88,7 @@ static struct proc *allocproc(void) {
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->priority = 0;
 
   release(&ptable.lock);
 
@@ -140,6 +149,7 @@ void userinit(void) {
   acquire(&ptable.lock);
 
   p->state = RUNNABLE;
+  heap_insert(&run_heap, p, ticks);
 
   release(&ptable.lock);
 }
@@ -206,6 +216,7 @@ int fork(void) {
   acquire(&ptable.lock);
 
   np->state = RUNNABLE;
+  heap_insert(&run_heap, np, ticks);
 
   release(&ptable.lock);
 
@@ -254,6 +265,7 @@ void exit(void) {
 
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
+
   sched();
   panic("zombie exit");
 }
@@ -310,38 +322,33 @@ int wait(void) {
 //   - eventually that process transfers control
 //       via swtch back to the scheduler.
 void scheduler(void) {
-  struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
 
   for (;;) {
-    // Enable interrupts on this processor.
-    sti();
-
-    // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-      if (p->state != RUNNABLE) {
-        continue;
-      }
-
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
+    struct proc *p = heap_pop(&run_heap);
+    
+    
+    if (p != 0 && p->state == RUNNABLE) {
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
-
       swtch(&(c->scheduler), p->context);
       switchkvm();
 
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
       c->proc = 0;
     }
+    else {
+      release(&ptable.lock);
+      sti();
+      continue;
+    }
+
     release(&ptable.lock);
   }
 }
+
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
@@ -374,7 +381,11 @@ void sched(void) {
 // Give up the CPU for one scheduling round.
 void yield(void) {
   acquire(&ptable.lock); // DOC: yieldlock
-  myproc()->state = RUNNABLE;
+
+  struct proc* p = myproc();
+  p->state = RUNNABLE;
+  heap_insert(&run_heap, p, ticks);
+
   sched();
   release(&ptable.lock);
 }
@@ -424,7 +435,6 @@ void sleep(void *chan, struct spinlock *lk) {
   // Go to sleep.
   p->chan = chan;
   p->state = SLEEPING;
-
   sched();
 
   // Tidy up.
@@ -446,6 +456,7 @@ static void wakeup1(void *chan) {
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
     if (p->state == SLEEPING && p->chan == chan) {
       p->state = RUNNABLE;
+      heap_insert(&run_heap, p, ticks);
     }
   }
 }
@@ -470,6 +481,7 @@ int kill(int pid) {
       // Wake process from sleep if necessary.
       if (p->state == SLEEPING) {
         p->state = RUNNABLE;
+        heap_insert(&run_heap, p, ticks);
       }
       release(&ptable.lock);
       return 0;
@@ -479,25 +491,28 @@ int kill(int pid) {
   return -1;
 }
 
+  /// The process state is used as an index into this table to obtain
+  /// a string name for teh corresponding process state
+  static const char *processStateToStringTable[] = {
+      [UNUSED] = "unused",   [EMBRYO] = "embryo",  [SLEEPING] = "sleep ",
+      [RUNNABLE] = "runble", [RUNNING] = "run   ", [ZOMBIE] = "zombie"};
+
 // PAGEBREAK: 36
 //  Print a process listing to console.  For debugging.
 //  Runs when user types ^P on console.
 //  No lock to avoid wedging a stuck machine further.
 void procdump(void) {
-  static char *states[] = {
-      [UNUSED] = "unused",   [EMBRYO] = "embryo",  [SLEEPING] = "sleep ",
-      [RUNNABLE] = "runble", [RUNNING] = "run   ", [ZOMBIE] = "zombie"};
   int i;
   struct proc *p;
-  char *state;
+  const char *state;
   uint32_t pc[10];
 
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
     if (p->state == UNUSED) {
       continue;
     }
-    if (p->state >= 0 && p->state < NELEM(states) && states[p->state]) {
-      state = states[p->state];
+    if (p->state >= 0 && p->state < NELEM(processStateToStringTable) && processStateToStringTable[p->state]) {
+      state = processStateToStringTable[p->state];
     } else {
       state = "???";
     }
@@ -510,4 +525,50 @@ void procdump(void) {
     }
     cprintf("\n");
   }
+}
+
+int cps(int pinfosToReturnNumber, struct pinfo *pinfo_p)
+{
+  struct proc *p;
+  const char *stateStr;
+  int i = 0;
+
+  for (int pid = 0; i < pinfosToReturnNumber && pid < NPROC; ++pid)
+  {
+    p = &ptable.proc[pid];
+
+    if (p->state != UNUSED)
+    {
+      stateStr = "???";
+      if (p->state >= 0 && p->state < NELEM(processStateToStringTable) && processStateToStringTable[p->state])
+      {
+        stateStr = processStateToStringTable[p->state];
+      }
+
+      pinfo_p[i].pid = p->pid;
+      pinfo_p[i].priority = p->priority;
+      safestrcpy(pinfo_p[i].stateStr, stateStr, PINFO_STATE_STR_MAX_LEN);
+      safestrcpy(pinfo_p[i].programNameStr, p->name, PINFO_NAME_MAX_LEN);
+      i += 1;
+    }
+  }
+
+  return i;
+}
+
+int cnice(int pid, int priority)
+{
+  struct proc *p;
+
+  acquire(&ptable.lock);
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; ++p) {
+    if (p->pid == pid) {
+      p->priority = priority;
+      release(&ptable.lock);
+      return 0;
+    }
+  }
+  release(&ptable.lock);
+
+  return -1;
 }

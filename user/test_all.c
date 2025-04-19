@@ -1337,9 +1337,9 @@ void iref(void) {
 }
 
 // test that fork fails gracefully
-// the forktest binary also does this, but it runs out of proc entries first.
-// inside the bigger usertests binary, we run out of memory first.
-void forktest(void) {
+// the testfork binary also does this, but it runs out of proc entries first.
+// inside the bigger testuser binary, we run out of memory first.
+void testfork(void) {
   int n, pid;
 
   printf(1, "fork test\n");
@@ -1706,13 +1706,13 @@ unsigned int rand() {
 }
 
 int main(int argc, char *argv[]) {
-  printf(1, "usertests starting\n");
+  printf(1, "testuser starting\n");
 
-  if (open("usertests.ran", 0) >= 0) {
+  if (open("testuser.ran", 0) >= 0) {
     printf(1, "already ran user tests -- rebuild fs.img\n");
     exit();
   }
-  close(open("usertests.ran", O_CREATE));
+  close(open("testuser.ran", O_CREATE));
 
   argptest();
   createdelete();
@@ -1750,7 +1750,7 @@ int main(int argc, char *argv[]) {
   unlinkread();
   dirfile();
   iref();
-  forktest();
+  testfork();
   bigdir(); // slow
 
   uio();

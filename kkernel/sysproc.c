@@ -6,6 +6,7 @@
 #include "proc.h"
 #include "types.h"
 #include "x86.h"
+#include "pinfo.h"
 
 int sys_fork(void) { return fork(); }
 
@@ -76,5 +77,28 @@ int sys_shutdown(void)
 {
   shutdown();
   return 0;
+}
+
+int sys_ps()
+{
+  int pinfosToReturnNumber;
+  argint(0, &pinfosToReturnNumber);
+
+  char *arg1_p;
+  argptr(1, &arg1_p, 1);
+  struct pinfo *pinfo_p = (struct pinfo *)arg1_p;
+
+  return cps(pinfosToReturnNumber, pinfo_p);
+}
+
+int sys_nice(void)
+{
+  int pidNum;
+  argint(0, &pidNum);
+
+  int priorityNum;
+  argint(1, &priorityNum);
+
+  return cnice(pidNum, priorityNum);
 }
 

@@ -9,7 +9,7 @@
 
 void printf(int fd, const char *s, ...) { write(fd, s, strlen(s)); }
 
-void forktest(void) {
+void testfork(void) {
   int n, pid;
 
   printf(1, "fork test\n");
@@ -45,6 +45,6 @@ void forktest(void) {
 }
 
 int main(void) {
-  forktest();
+  testfork();
   exit();
 }

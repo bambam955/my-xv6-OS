@@ -2,6 +2,7 @@
 
 #ifndef D403047C_65A6_4017_9DFB_514095C998F7
 #define D403047C_65A6_4017_9DFB_514095C998F7
+
 #define SYS_fork 1
 #define SYS_exit 2
 #define SYS_wait 3
@@ -25,5 +26,9 @@
 #define SYS_close 21
 
 #define SYS_shutdown  22
+#define SYS_flock  23
+#define SYS_funlock  24
+#define SYS_ps 25
+#define SYS_nice 26
 
 #endif /* D403047C_65A6_4017_9DFB_514095C998F7 */

@@ -3,7 +3,7 @@
 
 // For this to work, you should also add a spin within iderw's
 // idequeue traversal loop.  Adding the following demonstrated a panic
-// after about 5 runs of stressfs in QEMU on a 2.1GHz CPU:
+// after about 5 runs of testfs in QEMU on a 2.1GHz CPU:
 //    for (i = 0; i < 40000; i++)
 //      asm volatile("");
 
@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
   char path[] = "stressfs0";
   char data[512];
 
-  printf(1, "stressfs starting\n");
+  printf(1, "testfs starting\n");
   memset(data, 'a', sizeof(data));
 
   for (i = 0; i < 4; i++) {

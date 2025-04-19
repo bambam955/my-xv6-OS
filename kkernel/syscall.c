@@ -102,6 +102,10 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 
 extern int sys_shutdown(void);
+extern int sys_flock(void);
+extern int sys_funlock(void);
+extern int sys_ps(void);
+extern int sys_nice(void);
 
 static int (*syscalls[])(void) = {
     [SYS_fork] = sys_fork,     [SYS_exit] = sys_exit,
@@ -115,6 +119,10 @@ static int (*syscalls[])(void) = {
     [SYS_mknod] = sys_mknod,   [SYS_unlink] = sys_unlink,
     [SYS_link] = sys_link,     [SYS_mkdir] = sys_mkdir,
     [SYS_close] = sys_close,   [SYS_shutdown] = sys_shutdown,
+    [SYS_flock] = sys_flock,
+    [SYS_funlock] = sys_funlock,
+    [SYS_ps] = sys_ps,         
+    [SYS_nice] = sys_nice,
 };
 
 void syscall(void) {

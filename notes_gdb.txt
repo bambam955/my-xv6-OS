@@ -1,0 +1,7 @@
+Run the emulator in debug mode (assuming no X11): make qemu-nox-gdb
+In other terminal just run the debugger loading the kernel symbols with:  gdb kernel This is important, otherwise the debugger will be confused between kernel and and user program symbols, for example main()
+From the gdb interface run: (gdb) target remote localhost:26000 where 26000 is the TCP port that the step #1 report at the end (this might change).
+Load the user exec with (gdb)file user_program
+Place a breakpoint (gdb) break main and continue with (gdb) continue
+etc...
+

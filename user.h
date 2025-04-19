@@ -1,5 +1,8 @@
 #ifndef DA6E252B_1596_44C1_B0E2_CD15D533B981
 #define DA6E252B_1596_44C1_B0E2_CD15D533B981
+
+#include <pinfo.h>
+
 struct stat;
 struct rtcdate;
 
@@ -28,12 +31,35 @@ int uptime(void);
 
 int shutdown(void);
 
+/// @brief call this function pasing the file descriptor for an open file in 
+/// order to acquire a sleep lock associated with the open file. This function
+/// blocks (a.k.a. sleeps) until the lock is acquired.
+/// @param[in] fd descriptor for a file opened with open()
+/// @return zero if lock is acquired and a negative number if any error is detected.
+int flock(int fd);
+
+/// @brief call this function pasing the file descriptor for an open file 
+/// that is currently locked via flock(). This function unlocks the lock 
+/// associated with the file. 
+/// @param fd descriptor for a file opened with open() and locked with flock()
+/// @return zero if lock is released and a negative number if any error is 
+/// detected.
+int funlock(int fd);
+
+// This function returns information about processes know to the kernel.
+// information is returned in an array of pinfo. pinfo must point to at
+// least enough memory for numberOfEnties pinfos.
+int ps(int numberOfEntries, struct pinfo *arrayOfPInfo);
+
+int nice(int pid, int priority);
+
 // ulib.c
 int stat(const char *, struct stat *);
 char *strcpy(char *, const char *);
 void *memmove(void *, const void *, int);
 char *strchr(const char *, char c);
 int strcmp(const char *, const char *);
+int32_t snprintf(char *outbuffer, int32_t n, const char *fmt, ...);
 void printf(int, const char *, ...);
 char *gets(char *, int max);
 uint32_t strlen(const char *);

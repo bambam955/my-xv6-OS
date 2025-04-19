@@ -17,6 +17,10 @@ main(int argc, char *argv[])
     printf(2,"Invalid priority (0-20)!\n");
     exit();
   }
-  chpr(pid, priority);
+  int res = nice(pid, priority);
+  if (res == 0)
+  {
+    printf(1, "Process %d set to priority %d\n", pid, priority);
+  }
   exit();
 }

@@ -1,3 +1,15 @@
+This version is an extensively reorganized and modernized code base derived from xv6 described below:
+
+- All source files have been reformatted using clang-format to enfoce a single style.
+- All compound statements have curly braces now and other coding practices have been improved using clang-tidy.
+- Kernel .c files are now in a kkernel directory and prefixed with 'k'.
+- User program .c files are now in a user directory
+- A sample "hello" device in dhello.c has been added.
+- A shutdown system call and user program have been added.
+- An implementation of snprintf() is provided.
+- A bug n sysfile.c create() related to mknod() has been corrected.
+
+
 NOTE: we have stopped maintaining the x86 version of xv6, and switched
 our efforts to the RISC-V version
 (https://github.com/mit-pdos/xv6-riscv.git)
