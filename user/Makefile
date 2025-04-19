@@ -60,23 +60,18 @@ UPROGS=\
 	_cat\
 	_cp\
 	_echo\
-	_grep\
 	_init\
-	_kill\
-	_ln\
 	_ls\
 	_mkdir\
 	_rm\
 	_sh\
-	_wc\
-	_zombie\
 	_shutdown\
-	_countUD\
 	_nice\
 	_ps\
 	_long\
 	_test_starvation\
 	_test_round_robin\
+	_testequalpriority\
 
 all: $(UPROGS)
 

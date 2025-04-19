@@ -2,6 +2,7 @@
 #define F0A2109A_45CC_4067_A12E_3F066FE3490C
 
 #include "param.h"
+#include "spinlock.h"
 #include "types.h"
 
 struct heap_entry {
@@ -13,6 +14,7 @@ struct heap_entry {
 struct heap {
   struct heap_entry entries[NPROC];
   int size;
+  struct spinlock lock;
 };
 
 void heap_init(struct heap *h);

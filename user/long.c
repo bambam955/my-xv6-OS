@@ -3,6 +3,8 @@
 #include "user.h"
 
 int main(int argc, const char *argv[]) {
-    while(1) {}
+    while(1) {
+        sleep(1);
+    }
     exit();
 }

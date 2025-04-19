@@ -22,7 +22,12 @@ static int compare(struct heap_entry *a, struct heap_entry *b) {
 }
 
 void heap_insert(struct heap *h, struct proc *p, int priority, uint32_t timestamp) {
-  if (h->size >= NPROC) return;
+  acquire(&h->lock);
+  
+  if (h->size >= NPROC) {
+    release(&h->lock);
+    return;
+  }
 
   int i = h->size++;
   h->entries[i].p = p;
@@ -37,11 +42,18 @@ void heap_insert(struct heap *h, struct proc *p, int priority, uint32_t timestam
       i = parent;
     } else break;
   }
+
+  release(&h->lock);
 }
 
 struct proc* heap_pop(struct heap *h) {
+  acquire(&h->lock);
+
   if (h->size == 0)
+  {
+    release(&h->lock);
     return 0;
+  }
 
   struct proc *top = h->entries[0].p;
   h->entries[0] = h->entries[--h->size];
@@ -63,6 +75,7 @@ struct proc* heap_pop(struct heap *h) {
       i = largest;
     } else break;
   }
+  release(&h->lock);
 
   return top;
 }

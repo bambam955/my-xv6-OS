@@ -27,6 +27,7 @@ static void wakeup1(void *chan);
 void pinit(void) { 
   initlock(&ptable.lock, "ptable");
   heap_init(&run_heap);
+  initlock(&run_heap.lock, "run_heap");
 }
 
 // Must be called with interrupts disabled
@@ -148,10 +149,12 @@ void userinit(void) {
   acquire(&ptable.lock);
 
   p->state = RUNNABLE;
-  acquire(&tickslock);
+  // acquire(&tickslock);
   p->heap_insert_time = ticks;
-  release(&tickslock);
+  // release(&tickslock);
   heap_insert(&run_heap, p, p->priority, p->heap_insert_time);
+  // cprintf("heap_insert: inserted pid %d with priority %d, time %d\n", p->pid, p->priority, p->heap_insert_time);
+
 
   release(&ptable.lock);
 }
@@ -218,9 +221,9 @@ int fork(void) {
   acquire(&ptable.lock);
 
   np->state = RUNNABLE;
-  acquire(&tickslock);
+  // acquire(&tickslock);
   np->heap_insert_time = ticks;
-  release(&tickslock);
+  // release(&tickslock);
   heap_insert(&run_heap, np, np->priority, np->heap_insert_time);
 
   release(&ptable.lock);
@@ -270,6 +273,8 @@ void exit(void) {
 
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
+  // cprintf("Before sched: ptable.lock=%d run_heap.lock=%d eflags=%x\n",
+    // holding(&ptable.lock), holding(&run_heap.lock), readeflags());
   sched();
   panic("zombie exit");
 }
@@ -330,18 +335,33 @@ void scheduler(void) {
   c->proc = 0;
 
   for (;;) {
-    sti();
+    // sti();
 
     acquire(&ptable.lock);
     struct proc *p = heap_pop(&run_heap);
-
+    
+    
     if (p != 0 && p->state == RUNNABLE) {
+      // cprintf("scheduler: picked pid %d with priority %d, time %d\n", p->pid, p->priority, p->heap_insert_time);
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
+      // cprintf("Before sched: ptable.lock=%d run_heap.lock=%d eflags=%x\n",
+      //   holding(&ptable.lock), holding(&run_heap.lock), readeflags());
       swtch(&(c->scheduler), p->context);
       switchkvm();
+
+      // if (p->state == RUNNABLE) {
+      //   p->heap_insert_time = ticks;
+      //   heap_insert(&run_heap, p, p->priority, p->heap_insert_time);
+      // }
+
       c->proc = 0;
+    }
+    else {
+      release(&ptable.lock);
+      sti();
+      continue;
     }
 
     release(&ptable.lock);
@@ -373,6 +393,8 @@ void sched(void) {
     panic("sched interruptible");
   }
   intena = mycpu()->intena;
+  // cprintf("Before sched: ptable.lock=%d run_heap.lock=%d eflags=%x\n",
+    // holding(&ptable.lock), holding(&run_heap.lock), readeflags());
   swtch(&p->context, mycpu()->scheduler);
   mycpu()->intena = intena;
 }
@@ -383,11 +405,13 @@ void yield(void) {
 
   struct proc* p = myproc();
   p->state = RUNNABLE;
-  acquire(&tickslock);
+  // acquire(&tickslock);
   p->heap_insert_time = ticks;
-  release(&tickslock);
+  // release(&tickslock);
   heap_insert(&run_heap, p, p->priority, p->heap_insert_time);
 
+  // cprintf("Before sched: ptable.lock=%d run_heap.lock=%d eflags=%x\n",
+    // holding(&ptable.lock), holding(&run_heap.lock), readeflags());
   sched();
   release(&ptable.lock);
 }
@@ -437,7 +461,8 @@ void sleep(void *chan, struct spinlock *lk) {
   // Go to sleep.
   p->chan = chan;
   p->state = SLEEPING;
-
+  // cprintf("Before sched: ptable.lock=%d run_heap.lock=%d eflags=%x\n",
+    // holding(&ptable.lock), holding(&run_heap.lock), readeflags());
   sched();
 
   // Tidy up.
@@ -459,10 +484,12 @@ static void wakeup1(void *chan) {
   for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
     if (p->state == SLEEPING && p->chan == chan) {
       p->state = RUNNABLE;
-      acquire(&tickslock);
+      // acquire(&tickslock);
       p->heap_insert_time = ticks;
-      release(&tickslock);
+      // release(&tickslock);
       heap_insert(&run_heap, p, p->priority, p->heap_insert_time);
+      // cprintf("heap_insert: inserted pid %d with priority %d, time %d\n", p->pid, p->priority, p->heap_insert_time);
+
     }
   }
 }
@@ -487,9 +514,9 @@ int kill(int pid) {
       // Wake process from sleep if necessary.
       if (p->state == SLEEPING) {
         p->state = RUNNABLE;
-        acquire(&tickslock);
+        // acquire(&tickslock);
         p->heap_insert_time = ticks;
-        release(&tickslock);
+        // release(&tickslock);
         heap_insert(&run_heap, p, p->priority, p->heap_insert_time);
       }
       release(&ptable.lock);
